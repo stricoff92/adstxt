@@ -1,7 +1,10 @@
 
+#!/usr/bin/env python3
 
+import contextlib
 from io import StringIO
 import re
+import urllib.request
 
 '''
 Adstxt File JSON format. Same structure as https://www.npmjs.com/package/ads.txt
@@ -27,7 +30,6 @@ Adstxt File JSON format. Same structure as https://www.npmjs.com/package/ads.txt
         "contact": "Jane Doe"
         ...
     }
-
 }
 
 '''
@@ -50,14 +52,18 @@ def _lazy_eval(r):
         return (line for line in r.split(NEW_LINE_CHAR))
 
 
+
 # Parsers.
+
 def loads(adstxt_string):
     
     data = {"fields":[], "variables":{}}
 
     for line in (l.strip() for l in _lazy_eval(adstxt_string)):
-        
-        # Check if line is comment or if line is key-value pair
+
+        # Check if line is comment or if line is key-value pair or blank line
+        if line == '':
+            continue
         if line.startswith('#'):
             continue
         var_pair = _parse_var(line)
@@ -66,6 +72,7 @@ def loads(adstxt_string):
             continue
         
         row = line.split(FIELD_DELIMITER)
+
         rowData = {}
         if len(row) == 0:
             continue
@@ -73,7 +80,7 @@ def loads(adstxt_string):
             rowData["comment"] = row[-1].split("#")[1].strip()
             row[-1] = row[-1].split("#")[0].strip() # Remove comment from last field
         
-        for ix, val in enumerate(v.strip() v for row):
+        for ix, val in enumerate(v.strip() for v in row):
             if ix == 0:
                 rowData["domain"] = val
             elif ix == 1:
@@ -84,19 +91,22 @@ def loads(adstxt_string):
                 rowData["certificateAuthorityID"] = val
 
         data['fields'].append(rowData)
+    return data
     
 
-
-def loadw(web_resource):
-    pass
-
-
 def load(f_file):
-    pass
+    return loads(f_file.read())
+
+
+def loadw(url):
+    with contextlib.closing(urllib.request.urlopen(url)) as resp:
+        return loads(resp.read().decode())
+
 
 
 # Encoders.
-def dumps(data, header=None, footer=None):
+
+def dumps(data, header=None):
     pass
 
 

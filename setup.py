@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from setuptools import setup
 
 setup(
@@ -6,7 +8,7 @@ setup(
     author='Jonathan Stricoff',
     classifiers=[
         'Development Status :: 1 - Planning'
-    ]
+    ],
     install_requires=[
 
     ]
