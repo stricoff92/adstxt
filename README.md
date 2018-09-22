@@ -1,4 +1,4 @@
-# A parser &amp; encoder for ads.txt files.
+# A Parser &amp; Encoder for Ads.txt Files.
 
 #### Requirements
 

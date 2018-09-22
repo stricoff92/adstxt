@@ -115,14 +115,14 @@ def loadw(url):
 def dumps(data, header=None):
 
     with contextlib.closing( StringIO() ) as f_file:
-        dump(data, f_file)
+        dump(data, f_file, header=header)
         f_file.seek(0)
         return f_file.read()
     
 
 def dump(data, f_file, header=None):
     if header:
-        f_file.write(('#' if not header.strip().startswith('#') else '' 
+        f_file.write((('# ' if not header.strip().startswith('#') else '')
                         + header
                         + '\n#\n'))
     
