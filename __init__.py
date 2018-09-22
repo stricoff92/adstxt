@@ -35,14 +35,14 @@ Adstxt File JSON format. Same structure as https://www.npmjs.com/package/ads.txt
 '''
 
 FIELD_DELIMITER = ','
+_d = FIELD_DELIMITER
 NEW_LINE_CHAR = '\n'
 
-_var_row_patt = re.compile(r'^[a-zA-Z]+\w?=\w+$')
+_var_row_patt = re.compile(r'^[a-zA-Z]+\S?=\S+$')
 
 def _parse_var(var_row_str):
     if _var_row_patt.match(var_row_str):
-        parts = var_row_str.split('=')
-        return {parts[0]:parts[1]}
+        return var_row_str.split('=')
     else:
         return None
 
@@ -68,7 +68,13 @@ def loads(adstxt_string):
             continue
         var_pair = _parse_var(line)
         if var_pair:
-            data["variables"] = {**data["variables"], **var_pair}
+            if var_pair[0] not in data["variables"]:
+                data["variables"][var_pair[0]] = var_pair[1]
+            elif isinstance(data["variables"][var_pair[0]], list):
+                data["variables"][var_pair[0]].append(var_pair[1])
+            else:
+                elem_0 = data["variables"][var_pair[0]]
+                data["variables"][var_pair[0]] = [elem_0, var_pair[1]]
             continue
         
         row = line.split(FIELD_DELIMITER)
@@ -107,8 +113,29 @@ def loadw(url):
 # Encoders.
 
 def dumps(data, header=None):
-    pass
 
+    with contextlib.closing( StringIO() ) as f_file:
+        dump(data, f_file)
+        f_file.seek(0)
+        return f_file.read()
+    
 
-def dump(data, f_file):
-    pass
+def dump(data, f_file, header=None):
+    if header:
+        f_file.write(('#' if not header.strip().startswith('#') else '' 
+                        + header
+                        + '\n#\n'))
+    
+    for r in data['fields']:
+        comment = data.get('comment')
+        caid = data.get('certificateAuthorityID')
+        f_file.write(f"{r['domain']}{_d} {r['publisherAccountID']}{_d} {r['accountType']}{_d+' '+caid if caid else ''}{' # '+comment if comment else ''}{NEW_LINE_CHAR}")
+    
+    for key, val in data.get('variables', {}).items():
+        if isinstance(val, list):
+            for v in val:
+                f_file.write(f"{key}={v}{NEW_LINE_CHAR}")
+        else:
+            f_file.write(f"{key}={val}{NEW_LINE_CHAR}")
+                
+    return f_file

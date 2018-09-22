@@ -3,7 +3,7 @@
 ### Setup
 
 ```bash
-python setup.py install
+./setup.py install
 ```
 
 

@@ -7,7 +7,7 @@ setup(
     version='0.9',
     author='Jonathan Stricoff',
     classifiers=[
-        'Development Status :: 1 - Planning'
+        'Development Status :: 4 - Beta'
     ],
     install_requires=[
 
