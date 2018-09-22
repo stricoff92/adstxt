@@ -43,6 +43,8 @@ adstxt_string = adstxt.dumps(data)
 
 #### Data Structure
 
+Initially used by https://www.npmjs.com/package/ads.txt
+
 ```javascript
 {
     "fields": [
